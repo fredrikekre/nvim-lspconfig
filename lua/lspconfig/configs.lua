@@ -160,9 +160,14 @@ function configs.__newindex(t, config_name, config_def)
         end
 
         -- Send `settings to server via workspace/didChangeConfiguration
+        -- if the server supports this request
         function client.workspace_did_change_configuration(settings)
           if not settings then
             return
+          end
+          local capabilities = client.resolved_capabilities.workspace_configuration
+          if capabilities == nil or not capabilities.change_notifications then
+              return
           end
           if vim.tbl_isempty(settings) then
             settings = { [vim.type_idx] = vim.types.dictionary }
